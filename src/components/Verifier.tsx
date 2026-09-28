@@ -66,8 +66,8 @@ export function Verifier({ historyEnabled }: { historyEnabled: boolean }) {
       let result: VerificationResult;
       try {
         const res = await fetch("/api/verify", { method: "POST", body: formData });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error ?? "Verification failed.");
+        const data = await res.json().catch(() => null);
+        if (!res.ok || !data) throw new Error(data?.error ?? "The server couldn't check this one. Please try again.");
         result = data.results[0];
       } catch (err) {
         result = {

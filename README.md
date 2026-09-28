@@ -2,7 +2,7 @@
 
 Checks that an alcohol label matches its TTB COLA application (Form 5100.31): brand name, class/type, alcohol content, net contents, and the government warning. The app works for one application at a time or several hundred at once!
 
-**Live:** _URL coming once it's deployed_
+**Live:** https://cola-label-verifier.vercel.app
 
 ## Using it
 

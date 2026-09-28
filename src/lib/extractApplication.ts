@@ -1,4 +1,3 @@
-import { PDFParse } from "pdf-parse";
 import type { ProcessedUpload } from "./imagePrep";
 import { parseCategory, type Category } from "./parse";
 import { askFirstAvailable } from "./vision/providers";
@@ -92,14 +91,25 @@ function htmlToText(html: string): string {
     .trim();
 }
 
+/**
+ * The PDF's text layer, or null if it can't be read (then a vision model
+ * reads the PDF instead). pdf.js expects browser drawing APIs (DOMMatrix)
+ * that servers don't have, and pdf-parse/worker supplies them, so it's
+ * loaded first. Both load here, only when a PDF comes in, so a problem
+ * with them can't take down images or saved pages.
+ */
 async function pdfToText(buffer: Buffer): Promise<string | null> {
-  const parser = new PDFParse({ data: buffer });
+  let parser: { getText(): Promise<{ text: string }>; destroy(): Promise<void> } | null = null;
   try {
+    const { CanvasFactory } = await import("pdf-parse/worker");
+    const { PDFParse } = await import("pdf-parse");
+    parser = new PDFParse({ data: buffer, CanvasFactory });
     return (await parser.getText()).text.replace(/\s+/g, " ").trim();
-  } catch {
+  } catch (err) {
+    console.error("Couldn't read the PDF's text, using a vision model instead", err);
     return null;
   } finally {
-    await parser.destroy();
+    await parser?.destroy();
   }
 }
 
