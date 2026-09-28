@@ -15,6 +15,23 @@ import { useFileIntake } from "./useFileIntake";
 // no request comes near the server's time limit.
 const CONCURRENT = 6;
 
+// The server stops at 60s, so a request with no answer by 75s was lost on
+// the way (a dropped connection, a browser extension). It's sent once more,
+// then shown as an error, so no row is left spinning forever.
+const REQUEST_TIMEOUT_MS = 75_000;
+
+async function postVerify(formData: FormData): Promise<Response> {
+  try {
+    return await fetch("/api/verify", { method: "POST", body: formData, signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) });
+  } catch {
+    try {
+      return await fetch("/api/verify", { method: "POST", body: formData, signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) });
+    } catch {
+      throw new Error("This one didn't come back from the server. Please try it again.");
+    }
+  }
+}
+
 async function fetchSample(path: string): Promise<DroppedFile> {
   const res = await fetch(`/samples/${encodeURI(path)}`);
   if (!res.ok) throw new Error(`Couldn't load sample ${path}`);
@@ -65,7 +82,7 @@ export function Verifier({ historyEnabled }: { historyEnabled: boolean }) {
       }
       let result: VerificationResult;
       try {
-        const res = await fetch("/api/verify", { method: "POST", body: formData });
+        const res = await postVerify(formData);
         const data = await res.json().catch(() => null);
         if (!res.ok || !data) throw new Error(data?.error ?? "The server couldn't check this one. Please try again.");
         result = data.results[0];
