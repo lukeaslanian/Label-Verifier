@@ -276,7 +276,7 @@ export async function verifyWithApplication(
     try {
       reading = await reader.read(labelSource, labelIsInsideApplication);
     } catch (err) {
-      console.error(`${reader.name} couldn't read the label, trying the next model`, err);
+      console.warn(`${reader.name} couldn't read the label, trying the next model`, err);
       continue;
     }
     opinions.push(checkFields(reading, await applicationPromise, labelIsInsideApplication));

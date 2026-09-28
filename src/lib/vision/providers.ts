@@ -135,7 +135,7 @@ export async function askFirstAvailable(
     try {
       return { text: await model.ask(prompt, uploads, maxTokens), model: model.name };
     } catch (err) {
-      console.error(`${model.name} failed, trying the next model`, err);
+      console.warn(`${model.name} failed, trying the next model`, err);
       lastError = err;
     }
   }

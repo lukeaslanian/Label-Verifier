@@ -106,7 +106,7 @@ async function pdfToText(buffer: Buffer): Promise<string | null> {
     parser = new PDFParse({ data: buffer, CanvasFactory });
     return (await parser.getText()).text.replace(/\s+/g, " ").trim();
   } catch (err) {
-    console.error("Couldn't read the PDF's text, using a vision model instead", err);
+    console.warn("Couldn't read the PDF's text, using a vision model instead", err);
     return null;
   } finally {
     await parser?.destroy();
