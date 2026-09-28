@@ -1,6 +1,7 @@
 import { SealCheckIcon } from "@phosphor-icons/react/ssr";
 import { Verifier } from "@/components/Verifier";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { version } from "../../package.json";
 
 export const dynamic = "force-dynamic";
 
@@ -34,7 +35,8 @@ export default function Home() {
         Built by{" "}
         <a href="https://lukeaslanian.com" target="_blank" rel="noopener noreferrer" className="text-accent-text underline hover:text-accent">
           Luke Aslanian
-        </a>
+        </a>{" "}
+        | v{version.split(".").slice(0, 2).join(".")}
       </footer>
     </div>
   );
