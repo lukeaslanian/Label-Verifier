@@ -79,7 +79,13 @@ Keys: `GEMINI_API_KEY`, `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`. Any one works, an
 
 ## Tools
 
-Next.js 16, React 19, TypeScript, and Tailwind CSS 4, deployed on Vercel. The vision models are called over their vendors' APIs. pdf-parse reads PDF text, sharp and heic-convert handle images, ExcelJS writes the export spreadsheet, and Neon Postgres stores the optional history.
+- **Next.js 16 and React 19.** I went with Next.js because the page and the API live in one project, so there's no separate backend to build, host, or keep in sync. It's also a really common stack, so someone else could pick it up easily.
+- **TypeScript.** The app passes a lot of structured data around (form fields, label readings, verdicts), and TypeScript catches mismatches before they turn into wrong results.
+- **Tailwind CSS 4.** It let me style things quickly and consistently from one set of colors and fonts, dark mode included.
+- **Vercel.** It's free, redeploys every time I push to GitHub, and handles HTTPS and the custom domain for me. Each application runs as its own request, so even a 300-application batch scales up without a server to manage. Next.js also runs on Azure, so it could move there if needed.
+- **Neon Postgres** for the optional history. I first planned on SQLite, but Vercel doesn't keep files between requests, so a hosted database made more sense, and Neon has a free tier that plugs right into Vercel. I've left it off on the live site for now though, since there's no login and a shared history would show everyone's results to everyone. Setting `DATABASE_URL` turns it back on.
+- **The vision models** are called through each company's API (see Architecture for the order and why).
+- **pdf-parse** reads PDF text, **sharp** and **heic-convert** handle images (including iPhone photos), and **ExcelJS** writes the export spreadsheet.
 
 ## Assumptions
 
