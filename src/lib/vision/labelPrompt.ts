@@ -8,7 +8,7 @@
  * The three facts that need structure go on fixed trailing lines instead.
  * Gemini runs at temperature 0: this is transcription, and its default
  * sampling made the same label read differently from one run to the next.
- * (Claude Sonnet 5 rejects a temperature setting, so Claude calls omit it.)
+ * (Claude Sonnet 5.5 rejects a temperature setting, so Claude calls omit it.)
  */
 
 const SEPARATE_LABEL_INTRO = `You are reading the label of one alcoholic beverage product for a TTB compliance review. Every attached image is part of that same product's label (for example the front, back, neck, or strip label). Images may be photos taken at an angle, with glare, or on a curved bottle.`;

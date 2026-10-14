@@ -32,7 +32,7 @@ Browser (Next.js page)
 /api/verify
   |-- imagePrep            PDF / HTML / image (incl. HEIC) -> model-ready input
   |-- extractApplication   form fields: text parse, or vision for scans
-  |-- vision/providers     Gemini Flash-Lite -> GPT-6 Luna -> GPT-6 Sol -> Claude Sonnet (ordered by test accuracy & speed)
+  |-- vision/providers     Gemini Flash-Lite -> Claude Sonnet -> GPT-6 Luna -> GPT-6 Sol (ordered by test accuracy & speed)
   |-- verifyWithApplication + warningCheck + warningSpellCheck
   v
 Results, and optionally Postgres history
@@ -48,6 +48,8 @@ I tested each model on its own against 19 of the samples, and ordered them by th
 | GPT-6 Luna | 96% | 3.7s |
 | GPT-6 Sol | 96% | 5.1s |
 | Claude Sonnet 5 | 91% | 7.1s |
+
+When Claude Sonnet 5.5 and Haiku 5.5 came out, I reran the models on 6 of the hardest samples (sideways labels, full-page scans, net contents blown into the glass). Sonnet 5.5 was the only model to get every field right, at a 3.9s median, so it replaced Sonnet 5 and moved up to the first backup. Haiku 5.5 matched Gemini's accuracy there but took 6.7s to Gemini's 2.0s, so Gemini stays first.
 
 Gemini was the most accurate, fastest, and cheapest, so it always goes first and there's no model picker. The others are just backups, but do come in handy when errors arise or when models refuse to respond for any reason. A clean label takes one call, about 2 seconds, which keeps it under the 5-second target. Most applications finished in about 2 seconds in my testing, though full-page scans and ones that need a second opinion take longer.
 

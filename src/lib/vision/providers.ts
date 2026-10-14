@@ -78,7 +78,7 @@ const askOpenAI =
   };
 
 let anthropic: Anthropic | null = null;
-// No temperature setting: Claude Sonnet 5 rejects it.
+// No temperature setting: Claude Sonnet 5.5 rejects it.
 const askClaude: Ask = async (prompt, uploads, maxTokens) => {
   anthropic ??= new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
   const media: Anthropic.Messages.ContentBlockParam[] = uploads.map((u) => {
@@ -88,7 +88,7 @@ const askClaude: Ask = async (prompt, uploads, maxTokens) => {
       : { type: "image", source: { type: "base64", media_type: "image/png", data } };
   });
   const message = await anthropic.messages.create({
-    model: "claude-sonnet-5",
+    model: "claude-sonnet-5-5",
     max_tokens: maxTokens,
     messages: [{ role: "user", content: [...media, { type: "text", text: prompt }] }],
   });
@@ -106,8 +106,10 @@ const timed = (name: string, ask: Ask, ms: number): VisionModel => ({
  * The models, in the order they're asked. Measured alone on the 19 real
  * samples (two runs each): Gemini Flash-Lite 98% of label fields right at
  * ~2s median, GPT-6 Luna 96% at ~4s, GPT-6 Sol 96% at ~5s, Claude Sonnet
- * 91% at ~7s (mostly strict "not bold" calls). Claude Haiku scored 84% and
- * missed whole government warnings, so it isn't used. The first model
+ * 91% at ~7s (mostly strict "not bold" calls). Claude Sonnet 5.5 then got
+ * every field right on 6 of the hardest samples at ~4s, the only model to,
+ * so it's the first backup. Claude Haiku 5.5 matched Gemini's accuracy
+ * there but took 3x as long, so it isn't used. The first model
  * does the work; the rest take over when one errors or refuses, and give
  * second opinions on label fields that aren't settled. Models without an
  * API key are skipped.
@@ -116,9 +118,9 @@ export function visionModels(): VisionModel[] {
   return [
     // A full-page scan can take Flash-Lite ~12s, though most take ~2s.
     process.env.GEMINI_API_KEY ? timed("Gemini Flash-Lite", askGemini, 15000) : null,
+    process.env.ANTHROPIC_API_KEY ? timed("Claude Sonnet", askClaude, 25000) : null,
     process.env.OPENAI_API_KEY ? timed("GPT-6 Luna", askOpenAI("gpt-6-luna"), 15000) : null,
     process.env.OPENAI_API_KEY ? timed("GPT-6 Sol", askOpenAI("gpt-6-sol"), 20000) : null,
-    process.env.ANTHROPIC_API_KEY ? timed("Claude Sonnet", askClaude, 25000) : null,
   ].filter((m): m is VisionModel => m !== null);
 }
 
